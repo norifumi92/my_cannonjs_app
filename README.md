@@ -31,3 +31,4 @@ beefy main.js --live
 - [Three.js Tutorial](https://discoverthreejs.com/)
 - [Cannon.js NPM](https://www.npmjs.com/package/cannon)
 - [Cannon.js](https://schteppe.github.io/cannon.js/)
+- [Connect Cannon.js with Three.js](https://memonoana.hatenablog.com/entry/2017/08/30/152039)
