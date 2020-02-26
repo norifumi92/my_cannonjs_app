@@ -14,6 +14,9 @@ let axes;
 
 function init() {
 
+    //Create CANNON world
+    createWorld()
+
     container = document.querySelector( '#scene-container' );
 
     scene = new THREE.Scene();
@@ -37,6 +40,15 @@ function init() {
     render();
     } );
     
+}
+
+function createWorld() {
+    // cannon.jsでワールド作成
+    world = new CANNON.World();
+    world.gravity.set(0, -9.82, 0);                   // 重力を設定
+    world.broadphase = new CANNON.NaiveBroadphase();  // ぶつかっている可能性のあるオブジェクト同士を見つける
+    world.solver.iterations = 8;                      // 反復計算回数
+    world.solver.tolerance = 0.1;                     // 許容値
 }
 
 //Configure meshes
