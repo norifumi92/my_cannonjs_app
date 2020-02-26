@@ -17,6 +17,12 @@ function init() {
     //Create CANNON world
     createWorld()
 
+    //Create CANNON body
+    createBodyMass()
+
+    //Create CANNON ground mass
+    createGroundMass()
+
     container = document.querySelector( '#scene-container' );
 
     scene = new THREE.Scene();
@@ -49,6 +55,26 @@ function createWorld() {
     world.broadphase = new CANNON.NaiveBroadphase();  // ぶつかっている可能性のあるオブジェクト同士を見つける
     world.solver.iterations = 8;                      // 反復計算回数
     world.solver.tolerance = 0.1;                     // 許容値
+}
+
+function createBodyMass() {
+    // cannon.jsで箱作成
+    const boxMass = 1;                                                 // 箱の質量
+    const boxShape = new CANNON.Box(new CANNON.Vec3(5, 5, 5));         // 箱の形状
+    const phyBox = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
+    phyBox.position.set(0, 20, 0);                                     // 箱の位置
+    phyBox.angularVelocity.set(0.1, 0.1, 0.1);                         // 角速度
+    phyBox.angularDamping = 0.1;                                       // 減衰率
+    world.addBody(phyBox);                                             // ワールドに箱追加
+}
+
+function createGroundMass() {
+    const planeMass = 0;                                               // 質量を0にすると衝突しても動かない                                                           
+    const planeShape = new CANNON.Plane();
+    const phyPlane = new CANNON.Body({mass: planeMass, shape: planeShape});
+    phyPlane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);  // X軸に90度回転  
+    phyPlane.position.set(0, 0, 0);
+    world.addBody(phyPlane);
 }
 
 //Configure meshes
