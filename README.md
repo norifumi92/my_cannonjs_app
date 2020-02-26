@@ -11,6 +11,8 @@ npm install --global browserify
 npm install -g beefy
 #install three.js
 npm install three --save
+#install cannon.js
+npm install --save cannon
 ```
 
 ## Bundle up JS files

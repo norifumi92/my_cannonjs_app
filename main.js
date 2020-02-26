@@ -1,7 +1,9 @@
 const THREE = require('three');
+const CANNON = require('cannon');
 const OrbitControls = require('./resources/js/vendor/three/OrbitControls.js');
 const GLTFLoaders = require('./resources/js/vendor/three/GLTFLoader.js');
 // these need to be accessed inside more than one function so we'll declare them first
+let world;
 let renderer;
 let camera;
 let scene;
@@ -24,7 +26,7 @@ function init() {
     createControls();
     createLights();
     createMeshes();
-    loadModels();
+    //loadModels();
     createRenderer();
 
     renderer.physicallyCorrectLights = true;
@@ -222,4 +224,3 @@ function loadModels() {
 init();
 
 window.addEventListener( 'resize', onWindowResize );
-
