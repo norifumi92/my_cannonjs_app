@@ -7,8 +7,9 @@ let world;
 let renderer;
 let camera;
 let scene;
-let train;
+//let train;
 //let light;
+let box;
 let container;
 let axes;
 
@@ -34,7 +35,9 @@ function init() {
     createCamera();
     createControls();
     createLights();
+    createGround();
     createMeshes();
+    box.position.set( 0, 5, 0);
     //loadModels();
     createRenderer();
 
@@ -77,9 +80,22 @@ function createGroundMass() {
     world.addBody(phyPlane);
 }
 
+function createGround() {
+    // 床
+    const planeGeometry = new THREE.PlaneGeometry(30, 30, 1, 1);
+    const planeMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = Math.PI / 2;
+    scene.add(plane);
+}
+
 //Configure meshes
 function createMeshes() {
-
+    // 箱
+    const boxGeometry = new THREE.BoxGeometry(10, 10, 10);
+    const boxMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
+    box = new THREE.Mesh(boxGeometry, boxMaterial);
+    scene.add(box);
 }
 
 // Configure renderer and set it into container
@@ -134,7 +150,7 @@ function createGeometries() {
 // Configure camera
 function createCamera() {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    camera.position.set( 0, 10, 10 );
+    camera.position.set( 0, 50, 50 );
     camera.lookAt( 0, 0, 0 );
 }
 
