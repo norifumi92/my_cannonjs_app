@@ -12,6 +12,7 @@ let scene;
 let box;
 let container;
 let axes;
+let phyBox;
 
 function init() {
 
@@ -37,7 +38,7 @@ function init() {
     createLights();
     createGround();
     createMeshes();
-    box.position.set( 0, 5, 0);
+    //box.position.set( 0, 20, 0);
     //loadModels();
     createRenderer();
 
@@ -64,7 +65,7 @@ function createBodyMass() {
     // cannon.jsで箱作成
     const boxMass = 1;                                                 // 箱の質量
     const boxShape = new CANNON.Box(new CANNON.Vec3(5, 5, 5));         // 箱の形状
-    const phyBox = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
+    phyBox = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
     phyBox.position.set(0, 20, 0);                                     // 箱の位置
     phyBox.angularVelocity.set(0.1, 0.1, 0.1);                         // 角速度
     phyBox.angularDamping = 0.1;                                       // 減衰率
@@ -178,12 +179,19 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-
+    
+    // cannon.jsからthree.jsにオブジェクトの位置をコピー
+    box.position.copy(phyBox.position);
+    box.quaternion.copy(phyBox.quaternion);
+    plane.position.copy(phyPlane.position);
+    plane.quaternion.copy(phyPlane.quaternion);  
+    //world time progress
+    world.step(1 / 60);
     // increase the mesh's rotation each frame
     //train.rotation.z += 0.01;
     //train.rotation.x += 0.01;
     //train.rotation.y += 0.01;
-  
+
 }
 
 // render, or 'draw a still image', of the scene
