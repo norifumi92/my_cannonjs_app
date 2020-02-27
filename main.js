@@ -13,6 +13,7 @@ let box;
 let container;
 let axes;
 let phyBox;
+let phyPlane;
 
 function init() {
 
@@ -75,7 +76,7 @@ function createBodyMass() {
 function createGroundMass() {
     const planeMass = 0;                                               // 質量を0にすると衝突しても動かない                                                           
     const planeShape = new CANNON.Plane();
-    const phyPlane = new CANNON.Body({mass: planeMass, shape: planeShape});
+    phyPlane = new CANNON.Body({mass: planeMass, shape: planeShape});
     phyPlane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);  // X軸に90度回転  
     phyPlane.position.set(0, 0, 0);
     world.addBody(phyPlane);
