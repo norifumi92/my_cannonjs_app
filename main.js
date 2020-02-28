@@ -2,45 +2,52 @@ const THREE = require('three');
 const CANNON = require('cannon');
 const OrbitControls = require('./resources/js/vendor/three/OrbitControls.js');
 const GLTFLoaders = require('./resources/js/vendor/three/GLTFLoader.js');
-// these need to be accessed inside more than one function so we'll declare them first
+//Axes
+let axes;
+
+//CANNON.js objects
 let world;
+let phyBox;
+let phyPlane;
+
+//THREE.js objects
 let renderer;
 let camera;
 let scene;
-//let train;
-//let light;
 let box;
 let container;
-let axes;
-let phyBox;
-let phyPlane;
 
 function init() {
 
     //Create CANNON world
     createWorld()
 
-    //Create CANNON body
-    createBodyMass()
-
-    //Create CANNON ground mass
-    createGroundMass()
-
+    //Assign Canvas DOM
     container = document.querySelector( '#scene-container' );
 
+    //Create scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color( 0x8FBCD4 ); 
     
-    axes = new THREE.AxesHelper( 50 );
-    scene.add( axes );
+    //Create axes
+    createAxes();
 
+    //Create camera
     createCamera();
+
+    //Create controls
     createControls();
+    
+    //Set up lights
     createLights();
+
+    //Set up ground. Physics should be defined in this.
     createGround();
+
+    //Set up meshes. Physics should be defined in this.
     createMeshes();
-    //box.position.set( 0, 20, 0);
-    //loadModels();
+
+    //Set up renderer
     createRenderer();
 
     renderer.physicallyCorrectLights = true;
@@ -62,8 +69,12 @@ function createWorld() {
     world.solver.tolerance = 0.1;                     // 許容値
 }
 
-function createBodyMass() {
-    // cannon.jsで箱作成
+function createAxes() {
+    axes = new THREE.AxesHelper( 50 );
+    scene.add( axes );
+}
+
+function createBoxMass() {
     const boxMass = 1;                                                 // 箱の質量
     const boxShape = new CANNON.Box(new CANNON.Vec3(5, 5, 5));         // 箱の形状
     phyBox = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
@@ -83,21 +94,27 @@ function createGroundMass() {
 }
 
 function createGround() {
-    // 床
+    //Create THREE ground
     const planeGeometry = new THREE.PlaneGeometry(30, 30, 1, 1);
     const planeMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
     plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = Math.PI / 2;
     scene.add(plane);
+
+    //Create CANNON ground mass
+    createGroundMass()
 }
 
 //Configure meshes
 function createMeshes() {
-    // 箱
+    //Create THREE box
     const boxGeometry = new THREE.BoxGeometry(10, 10, 10);
     const boxMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
     box = new THREE.Mesh(boxGeometry, boxMaterial);
     scene.add(box);
+
+    //Create CANNON box
+    createBoxMass()
 }
 
 // Configure renderer and set it into container
