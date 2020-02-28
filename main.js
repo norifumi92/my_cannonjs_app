@@ -8,18 +8,18 @@ let grid;
 
 //CANNON.js objects
 let world;
-let phyBox;
-let phyBox2;
+let phySphere;
 let phyPlane;
+let phyWalls;
 
 //THREE.js sets
 let renderer;
 let camera;
 let scene;
+let walls;
 
 //THREE.js objects
-let box;
-let box2;
+let sphere;
 let container;
 
 function init() {
@@ -55,6 +55,9 @@ function init() {
     //Set up ground. Physics should be defined in this.
     createGround();
 
+    //Create walls
+    createWalls();
+
     //Set up meshes. Physics should be defined in this.
     createMeshes();
 
@@ -85,20 +88,16 @@ function createAxes() {
     scene.add( axes );
 }
 
-function createBoxMass() {
-    const boxMass = 1;                                                 // 箱の質量
-    const boxShape = new CANNON.Box(new CANNON.Vec3(5, 5, 5));         // 箱の形状
-    phyBox = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
-    phyBox.position.set(0, 20, 0);                                     // 箱の位置
-    phyBox.angularVelocity.set(0.1, 0.1, 0.1);                         // 角速度
-    phyBox.angularDamping = 0.1;                                       // 減衰率
+function createSphereMass() {
+    const sphereMass = 1;                                                 
+    const sphereShape = new CANNON.Sphere(new CANNON.Vec3(radias=1));      
+    phySphere = new CANNON.Body({mass: sphereMass, shape: sphereShape});  
+    phySphere.position.set(0, 20, 0);                                     
+    phySphere.angularVelocity.set(0.1, 0.1, 0.1);                         
+    phySphere.angularDamping = 0.1;                                       
 
-    phyBox2 = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
-    phyBox2.position.set(0, 40, 0);                                     // 箱の位置
-    phyBox2.angularVelocity.set(0.1, 0.1, 0.1);                         // 角速度
-    phyBox2.angularDamping = 0.1;                                       // 減衰率
-    world.addBody(phyBox);
-    world.addBody(phyBox2);
+    world.addBody(phySphere);
+;
 }
 
 function createGroundMass() {
@@ -112,8 +111,8 @@ function createGroundMass() {
 
 function createGround() {
     //Create THREE ground
-    const planeGeometry = new THREE.PlaneGeometry(30, 30, 1, 1);
-    const planeMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    const planeGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+    const planeMaterial = new THREE.LineBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, linewidth: 2 } );
     plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = Math.PI / 2;
     scene.add(plane);
@@ -122,18 +121,40 @@ function createGround() {
     createGroundMass()
 }
 
+function createWalls() {
+
+    walls = new THREE.Group();
+    const materials = createMaterials();
+    const wall_geometry = new THREE.BoxBufferGeometry( 20, 10, 3 );
+    const wall1 = new THREE.Mesh(wall_geometry, materials.body);
+    wall1.position.set( 0, 0, 8.5 );
+    
+    const wall2 = wall1.clone();
+    wall2.position.set( 0, 0, -8.5 );
+
+    const wall3 = wall1.clone();
+    wall3.position.set( -10, 0, 0 );
+    wall3.rotation.y = Math.PI / 2;
+
+    walls.add(
+        wall1,
+        wall2,
+        wall3
+    );
+
+    scene.add(walls);
+}
+
 //Configure meshes
 function createMeshes() {
-    //Create THREE box
-    const boxGeometry = new THREE.BoxGeometry(10, 10, 10);
-    const boxMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
-    box = new THREE.Mesh(boxGeometry, boxMaterial);
-    box2 = new THREE.Mesh(boxGeometry, boxMaterial);
-    scene.add(box);
-    scene.add(box2);
-
-    //Create CANNON box
-    createBoxMass()
+    //Create THREE sphere
+    const sphereGeometry = new THREE.SphereGeometry(radias=1, widthSegments=10, heightSegments=10);
+    let materials = createMaterials();
+    sphere = new THREE.Mesh(sphereGeometry, materials.detail);
+    scene.add(sphere);
+    
+    //Create CANNON sphere
+    createSphereMass();
 }
 
 // Configure renderer and set it into container
@@ -146,7 +167,7 @@ function createRenderer() {
 function createMaterials() {
 
     const body = new THREE.MeshStandardMaterial( {
-        color: 0xff3333,
+        color: 0xffffff,
         flatShading: true,
     })
     // just as with textures, we need to put colors into linear color space
@@ -218,11 +239,8 @@ function createControls() {
 function update() {
     
     // cannon.jsからthree.jsにオブジェクトの位置をコピー
-    box.position.copy(phyBox.position);
-    box.quaternion.copy(phyBox.quaternion);
-
-    box2.position.copy(phyBox2.position);
-    box2.quaternion.copy(phyBox2.quaternion);
+    sphere.position.copy(phySphere.position);
+    sphere.quaternion.copy(phySphere.quaternion);
 
     plane.position.copy(phyPlane.position);
     plane.quaternion.copy(phyPlane.quaternion);  
