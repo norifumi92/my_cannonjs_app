@@ -27,7 +27,7 @@ beefy main.js --live
 ## Memo
 [The official site of Three.js](https://threejs.org/docs/index.html#manual/en/introduction/Import-via-modules) listed two bundling tools: `Webpack` and `Browserify`. If you are not familiar with both, I highly recommend you use `Browserify` since its setup requires only a few lines of commands and information is more simple and organized. 
 
-## Reference
+## References
 - [Get start with Brooserify](https://scotch.io/tutorials/getting-started-with-browserify)
 - [Three.js](https://scotch.io/tutorials/getting-started-with-browserify)
 - [Three.js Tutorial](https://discoverthreejs.com/)
@@ -35,3 +35,5 @@ beefy main.js --live
 - [Cannon.js](https://schteppe.github.io/cannon.js/)
 - [Connect Cannon.js with Three.js](https://memonoana.hatenablog.com/entry/2017/08/30/152039)
 - [Why CANNON.Vec3 half sized?](http://javascriptjamie.weebly.com/blog/part-2-the-geometry)
+- [Bouncing Behaviour of CANNON.js](https://github.com/schteppe/cannon.js/blob/master/demos/bounce.html)
+- [Rotating Ground by cursor](https://nijibox.jp/blog/hello-threejs-physics/)

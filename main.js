@@ -8,8 +8,10 @@ let grid;
 
 //CANNON.js objects
 let world;
-let phySphere;
-let phyPlane;
+let sphereBody;
+let groundBody;
+let groundMaterial;
+let sphereMaterial;
 let phyWalls;
 
 //THREE.js sets
@@ -66,6 +68,11 @@ function init() {
 
     renderer.physicallyCorrectLights = true;
 
+
+    //Set contact material behaviour
+    var mat2_ground = new CANNON.ContactMaterial(groundMaterial, sphereMaterial, { friction: 0.0, restitution: 0.5 });
+    world.addContactMaterial(mat2_ground);
+
     // start the animation loop
     renderer.setAnimationLoop( () => {
     update();
@@ -88,25 +95,15 @@ function createAxes() {
     scene.add( axes );
 }
 
-function createSphereMass() {
-    const sphereMass = 1;                                                 
-    const sphereShape = new CANNON.Sphere(new CANNON.Vec3(radias=1));      
-    phySphere = new CANNON.Body({mass: sphereMass, shape: sphereShape});  
-    phySphere.position.set(0, 20, 0);                                     
-    phySphere.angularVelocity.set(0.1, 0.1, 0.1);                         
-    phySphere.angularDamping = 0.1;                                       
+function createGroundBody() {
+    groundMaterial = new CANNON.Material();
+    var groundShape = new CANNON.Plane();
+    groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
+    groundBody.addShape(groundShape);
+    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);  // X軸に90度回転  
+    groundBody.position.set(0, 0, 0);
 
-    world.addBody(phySphere);
-;
-}
-
-function createGroundMass() {
-    const planeMass = 0;                                               // 質量を0にすると衝突しても動かない                                                           
-    const planeShape = new CANNON.Plane();
-    phyPlane = new CANNON.Body({mass: planeMass, shape: planeShape});
-    phyPlane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);  // X軸に90度回転  
-    phyPlane.position.set(0, 0, 0);
-    world.addBody(phyPlane);
+    world.addBody(groundBody);
 }
 
 function createGround() {
@@ -117,8 +114,8 @@ function createGround() {
     plane.rotation.x = Math.PI / 2;
     scene.add(plane);
 
-    //Create CANNON ground mass
-    createGroundMass()
+    //Create CANNON ground body
+    createGroundBody();
 }
 
 function createWalls() {
@@ -145,16 +142,36 @@ function createWalls() {
     scene.add(walls);
 }
 
+//Create sphere body
+function createSphereBody() {
+    const radius = 1; 
+    const sphereInitialHeight = 20;
+    const damping = 0.01;
+    const sphereMass = 5;
+    sphereMaterial = createMaterials().body;
+
+    sphereBody = new CANNON.Body({
+        mass: sphereMass,
+        material: sphereMaterial,
+        position: new CANNON.Vec3(0 , sphereInitialHeight , 0)
+    });
+    const sphereShape = new CANNON.Sphere(radius);
+    sphereBody.addShape(sphereShape);
+    sphereBody.linearDamping = damping;
+    
+    world.addBody(sphereBody);
+}
+
 //Configure meshes
 function createMeshes() {
     //Create THREE sphere
-    const sphereGeometry = new THREE.SphereGeometry(radias=1, widthSegments=10, heightSegments=10);
+    const sphereGeometry = new THREE.SphereGeometry(radias=2, widthSegments=10, heightSegments=10);
     let materials = createMaterials();
     sphere = new THREE.Mesh(sphereGeometry, materials.detail);
     scene.add(sphere);
     
     //Create CANNON sphere
-    createSphereMass();
+    createSphereBody();
 }
 
 // Configure renderer and set it into container
@@ -237,13 +254,12 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-    
     // cannon.jsからthree.jsにオブジェクトの位置をコピー
-    sphere.position.copy(phySphere.position);
-    sphere.quaternion.copy(phySphere.quaternion);
+    sphere.position.copy(sphereBody.position);
+    sphere.quaternion.copy(sphereBody.quaternion);
 
-    plane.position.copy(phyPlane.position);
-    plane.quaternion.copy(phyPlane.quaternion);  
+    plane.position.copy(groundBody.position);
+    plane.quaternion.copy(groundBody.quaternion);  
     //world time progress
     world.step(1 / 60);
     // increase the mesh's rotation each frame
