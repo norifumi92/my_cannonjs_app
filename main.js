@@ -8,13 +8,17 @@ let axes;
 //CANNON.js objects
 let world;
 let phyBox;
+let phyBox2;
 let phyPlane;
 
-//THREE.js objects
+//THREE.js sets
 let renderer;
 let camera;
 let scene;
+
+//THREE.js objects
 let box;
+let box2;
 let container;
 
 function init() {
@@ -81,7 +85,13 @@ function createBoxMass() {
     phyBox.position.set(0, 20, 0);                                     // 箱の位置
     phyBox.angularVelocity.set(0.1, 0.1, 0.1);                         // 角速度
     phyBox.angularDamping = 0.1;                                       // 減衰率
-    world.addBody(phyBox);                                             // ワールドに箱追加
+
+    phyBox2 = new CANNON.Body({mass: boxMass, shape: boxShape});  // 箱作成
+    phyBox2.position.set(0, 40, 0);                                     // 箱の位置
+    phyBox2.angularVelocity.set(0.1, 0.1, 0.1);                         // 角速度
+    phyBox2.angularDamping = 0.1;                                       // 減衰率
+    world.addBody(phyBox);
+    world.addBody(phyBox2);
 }
 
 function createGroundMass() {
@@ -111,7 +121,9 @@ function createMeshes() {
     const boxGeometry = new THREE.BoxGeometry(10, 10, 10);
     const boxMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
     box = new THREE.Mesh(boxGeometry, boxMaterial);
+    box2 = new THREE.Mesh(boxGeometry, boxMaterial);
     scene.add(box);
+    scene.add(box2);
 
     //Create CANNON box
     createBoxMass()
@@ -201,6 +213,10 @@ function update() {
     // cannon.jsからthree.jsにオブジェクトの位置をコピー
     box.position.copy(phyBox.position);
     box.quaternion.copy(phyBox.quaternion);
+
+    box2.position.copy(phyBox2.position);
+    box2.quaternion.copy(phyBox2.quaternion);
+
     plane.position.copy(phyPlane.position);
     plane.quaternion.copy(phyPlane.quaternion);  
     //world time progress
