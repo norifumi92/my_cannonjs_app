@@ -4,6 +4,7 @@ const OrbitControls = require('./resources/js/vendor/three/OrbitControls.js');
 const GLTFLoaders = require('./resources/js/vendor/three/GLTFLoader.js');
 //Axes
 let axes;
+let grid;
 
 //CANNON.js objects
 let world;
@@ -35,6 +36,12 @@ function init() {
     
     //Create axes
     createAxes();
+    
+    //Create grid 
+    const size = 100;
+    const divisions = 100;
+    grid = new THREE.GridHelper( size, divisions );
+    scene.add( grid );
 
     //Create camera
     createCamera();
