@@ -143,8 +143,7 @@ function createWalls() {
 }
 
 //Create sphere body
-function createSphereBody() {
-    const radius = 1; 
+function createSphereBody(radius) {
     const sphereInitialHeight = 20;
     const damping = 0.01;
     const sphereMass = 5;
@@ -164,14 +163,15 @@ function createSphereBody() {
 
 //Configure meshes
 function createMeshes() {
+    const radius = 2;
     //Create THREE sphere
-    const sphereGeometry = new THREE.SphereGeometry(radias=2, widthSegments=10, heightSegments=10);
+    let sphereGeometry = new THREE.SphereGeometry(radius, widthSegments=10, heightSegments=10);
     let materials = createMaterials();
     sphere = new THREE.Mesh(sphereGeometry, materials.detail);
     scene.add(sphere);
     
     //Create CANNON sphere
-    createSphereBody();
+    createSphereBody(radius);
 }
 
 // Configure renderer and set it into container
