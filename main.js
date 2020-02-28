@@ -226,7 +226,7 @@ function createGeometries() {
 // Configure camera
 function createCamera() {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    camera.position.set( 0, 50, 50 );
+    camera.position.set( -50, 35, -35 );
     camera.lookAt( 0, 0, 0 );
 }
 
@@ -266,7 +266,7 @@ function update() {
     //train.rotation.z += 0.01;
     //train.rotation.x += 0.01;
     //train.rotation.y += 0.01;
-
+    console.log(camera.position)
 }
 
 // render, or 'draw a still image', of the scene
