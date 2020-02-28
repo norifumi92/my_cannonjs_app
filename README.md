@@ -5,6 +5,8 @@ This project is created to establish the environment to develop `three.js` with 
 
 Run and install followings:
 ```bash
+#initiate npm if node_modules are not present in the folder
+npm init -y
 #install browserify
 npm install --global browserify
 #install Beefy
