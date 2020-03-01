@@ -45,7 +45,7 @@ function init() {
     const size = 100;
     const divisions = 100;
     grid = new THREE.GridHelper( size, divisions );
-    scene.add( grid );
+    //scene.add( grid );
 
     //Create camera
     createCamera();
@@ -97,28 +97,32 @@ function createAxes() {
     scene.add( axes );
 }
 
-function createGroundBody(widthGround, lengthGround) {
+function createGroundBody(widthGround, lengthGround, heightGround, angle) {
     groundMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(widthGround/2, lengthGround/2, 0.05))
+    let groundShape = new CANNON.Box(new CANNON.Vec3(widthGround/2, lengthGround/2, heightGround/2));
     groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
     groundBody.addShape(groundShape);
     let degree = -Math.PI / 2 ;
-    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 0.9, 0, 0), degree);  
+    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( angle, 0, 0), degree);  
     groundBody.position.set(0, 0, 0);
 
     world.addBody(groundBody);
 }
 
 function createGround() {
-    const widthGround = 30;
-    const lengthGround = 30;
-    const planeGeometry = new THREE.PlaneGeometry(widthGround, lengthGround, 1, 1);
-    const planeMaterial = new THREE.LineBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, linewidth: 2 } );
-    plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    const widthGround = 100;
+    const lengthGround = 100;
+    const heightGround = 20;
+    const planeGeometry = new THREE.BoxBufferGeometry(widthGround, lengthGround, heightGround);
+    const planeMaterial = new THREE.MeshStandardMaterial( {
+        color: 0xffffff,
+        flatShading: true,
+    });
+    plane = new THREE.Mesh(planeGeometry, planeMaterial );
     scene.add(plane);
 
     //Create CANNON ground body
-    createGroundBody(widthGround, lengthGround);
+    createGroundBody(widthGround, lengthGround, heightGround, 1);
 }
 
 function createWalls() {
@@ -168,9 +172,9 @@ function createSphereBody(radius) {
 function createMeshes() {
     const radius = 2;
     //Create THREE sphere
-    let sphereGeometry = new THREE.SphereGeometry(radius, widthSegments=10, heightSegments=10);
+    let sphereGeometry = new THREE.SphereGeometry(radius, widthSegments=20, heightSegments=20);
     let materials = createMaterials();
-    sphere = new THREE.Mesh(sphereGeometry, materials.detail);
+    sphere = new THREE.Mesh(sphereGeometry, materials.body);
     scene.add(sphere);
     
     //Create CANNON sphere
@@ -229,7 +233,7 @@ function createGeometries() {
 // Configure camera
 function createCamera() {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    camera.position.set( -50, 35, -35 );
+    camera.position.set( -100, 100, 100 );
     camera.lookAt( 0, 0, 0 );
 }
 
@@ -238,11 +242,11 @@ function createLights() {
     const ambientLight = new THREE.HemisphereLight(
         0xddeeff, // bright sky color
         0x202020, // dim ground color
-        5, // intensity
+        3, // intensity
     );
 
     const mainLight = new THREE.DirectionalLight( 0xffffff, 5 );
-    mainLight.position.set( 10, 10, 10 );
+    mainLight.position.set( 40, 40, -40 );
 
     scene.add( ambientLight, mainLight );
 }
@@ -257,12 +261,17 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-    
+    //if (Math.abs(mouseLoc.x) > 0.5 && Math.abs(mouseLoc.x) < 0.9 && Math.abs(mouseLoc.y) < 0.4 ) { 
+    groundBody.quaternion.x = mouseLoc.x;
+    groundBody.quaternion.y = mouseLoc.y;
+    //}
+
     //world time progress
     world.step(1 / 60);
     // cannon.jsからthree.jsにオブジェクトの位置をコピー
     sphere.position.copy(sphereBody.position);
     sphere.quaternion.copy(sphereBody.quaternion);
+
 
     plane.position.copy(groundBody.position);
     plane.quaternion.copy(groundBody.quaternion);  
@@ -329,8 +338,6 @@ function onMouseMove( event ) {
 
 	mouseLoc.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouseLoc.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    console.log(event);
-    console.log(mouseLoc);
 }
 
 // call the init function to set everything up
