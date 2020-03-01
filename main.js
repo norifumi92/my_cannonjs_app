@@ -10,7 +10,9 @@ let grid;
 let world;
 let sphereBody;
 let groundBody;
+let coverBody;
 let groundMaterial;
+let coverMaterial;
 let sphereMaterial;
 let phyWalls;
 
@@ -25,6 +27,7 @@ let sphere;
 let container;
 let walls;
 let plane;
+let cover;
 
 function init() {
 
@@ -72,8 +75,11 @@ function init() {
 
 
     //Set contact material behaviour
-    var mat2_ground = new CANNON.ContactMaterial(groundMaterial, sphereMaterial, { friction: 0.0, restitution: 0.5 });
-    world.addContactMaterial(mat2_ground);
+    var groundCollision = new CANNON.ContactMaterial(groundMaterial, sphereMaterial, { friction: 0.0, restitution: 0.5 });
+    world.addContactMaterial(groundCollision);
+
+    var coverCollision = new CANNON.ContactMaterial(coverMaterial, sphereMaterial, { friction: 0.0, restitution: 0.5 });
+    world.addContactMaterial(coverCollision);
 
     // start the animation loop
     renderer.setAnimationLoop( () => {
@@ -99,20 +105,29 @@ function createAxes() {
 
 function createGroundBody(widthGround, lengthGround, heightGround, angle) {
     groundMaterial = new CANNON.Material();
+    coverMaterial = new CANNON.Material();
+
     let groundShape = new CANNON.Box(new CANNON.Vec3(widthGround/2, lengthGround/2, heightGround/2));
     groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
+    coverBody = new CANNON.Body({ mass: 0, material: coverMaterial });
+
     groundBody.addShape(groundShape);
+    coverBody.addShape(groundShape);
+
     let radianAngle = 0;
     groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 1, 0, 0), radianAngle );  
+
     groundBody.position.set(0, 0, 0);
+    coverBody.position.set( 0, 10, 0);
 
     world.addBody(groundBody);
+    world.addBody(coverBody);
 }
 
 function createGround() {
-    const widthGround = 100;
-    const lengthGround = 5;
-    const heightGround = 100;
+    const widthGround = 200;
+    const lengthGround = 1;
+    const heightGround = 200;
     const planeGeometry = new THREE.BoxBufferGeometry(widthGround, lengthGround, heightGround);
     const planeMaterial = new THREE.MeshStandardMaterial( {
         color: 0xffffff,
@@ -121,8 +136,10 @@ function createGround() {
         flatShading: true,
     });
     plane = new THREE.Mesh(planeGeometry, planeMaterial );
-    scene.add(plane);
-
+    cover = plane.clone();
+    scene.add(plane,
+        cover
+        );
     //Create CANNON ground body
     createGroundBody(widthGround, lengthGround, heightGround, 1);
 }
@@ -153,7 +170,7 @@ function createWalls() {
 
 //Create sphere body
 function createSphereBody(radius) {
-    const sphereInitialHeight = 20;
+    const sphereInitialHeight = 5;
     const damping = 0.01;
     const sphereMass = 3;
     sphereMaterial = createMaterials().body;
@@ -263,16 +280,16 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-    if ( mouseLoc.x > 0.5 && mouseLoc.x < 0.9 ) { 
-    var axes = new THREE.Vector3(1, 0, 1).normalize();
-    
+    //if ( mouseLoc.x > 0.5 && mouseLoc.x < 0.9 ) { 
+    var axes = new THREE.Vector3(mouseLoc.x, 0, mouseLoc.y).normalize();
     //get radian angle using inverse trigonometric function
     radianAngle = - Math.asin(mouseLoc.y);
     groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
+    coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
     //groundBody.quaternion.y = mouseLoc.y;
     console.log(groundBody.quaternion);
     console.log(mouseLoc.y);
-    }
+    //}
 
     //world time progress
     world.step(1 / 60);
@@ -280,10 +297,10 @@ function update() {
     sphere.position.copy(sphereBody.position);
     sphere.quaternion.copy(sphereBody.quaternion);
 
-
     plane.position.copy(groundBody.position);
     plane.quaternion.copy(groundBody.quaternion);  
-
+    cover.position.copy(coverBody.position);
+    cover.quaternion.copy(coverBody.quaternion); 
     // increase the mesh's rotation each frame
     //train.rotation.z += 0.01;
     //train.rotation.x += 0.01;
