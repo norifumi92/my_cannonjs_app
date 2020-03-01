@@ -18,11 +18,13 @@ let phyWalls;
 let renderer;
 let camera;
 let scene;
-let walls;
+let mouseLoc = new THREE.Vector2(0, 0);
 
 //THREE.js objects
 let sphere;
 let container;
+let walls;
+let plane;
 
 function init() {
 
@@ -95,27 +97,28 @@ function createAxes() {
     scene.add( axes );
 }
 
-function createGroundBody() {
+function createGroundBody(widthGround, lengthGround) {
     groundMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Plane();
+    var groundShape = new CANNON.Box(new CANNON.Vec3(widthGround/2, lengthGround/2, 0.05))
     groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
     groundBody.addShape(groundShape);
-    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);  // X軸に90度回転  
+    let degree = -Math.PI / 2 ;
+    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 0.9, 0, 0), degree);  
     groundBody.position.set(0, 0, 0);
 
     world.addBody(groundBody);
 }
 
 function createGround() {
-    //Create THREE ground
-    const planeGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+    const widthGround = 30;
+    const lengthGround = 30;
+    const planeGeometry = new THREE.PlaneGeometry(widthGround, lengthGround, 1, 1);
     const planeMaterial = new THREE.LineBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, linewidth: 2 } );
     plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.rotation.x = Math.PI / 2;
     scene.add(plane);
 
     //Create CANNON ground body
-    createGroundBody();
+    createGroundBody(widthGround, lengthGround);
 }
 
 function createWalls() {
@@ -139,14 +142,14 @@ function createWalls() {
         wall3
     );
 
-    scene.add(walls);
+    //scene.add(walls);
 }
 
 //Create sphere body
 function createSphereBody(radius) {
     const sphereInitialHeight = 20;
     const damping = 0.01;
-    const sphereMass = 5;
+    const sphereMass = 3;
     sphereMaterial = createMaterials().body;
 
     sphereBody = new CANNON.Body({
@@ -254,19 +257,20 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
+    
+    //world time progress
+    world.step(1 / 60);
     // cannon.jsからthree.jsにオブジェクトの位置をコピー
     sphere.position.copy(sphereBody.position);
     sphere.quaternion.copy(sphereBody.quaternion);
 
     plane.position.copy(groundBody.position);
     plane.quaternion.copy(groundBody.quaternion);  
-    //world time progress
-    world.step(1 / 60);
+
     // increase the mesh's rotation each frame
     //train.rotation.z += 0.01;
     //train.rotation.x += 0.01;
     //train.rotation.y += 0.01;
-    console.log(camera.position)
 }
 
 // render, or 'draw a still image', of the scene
@@ -318,7 +322,21 @@ function loadModels() {
     
 }
 
+function onMouseMove( event ) {
+
+	// calculate mouse position in normalized device coordinates
+	// (-1 to +1) for both components
+
+	mouseLoc.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouseLoc.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    console.log(event);
+    console.log(mouseLoc);
+}
+
 // call the init function to set everything up
 init();
 
 window.addEventListener( 'resize', onWindowResize );
+window.addEventListener( 'mousemove', onMouseMove, false );
+    
+
