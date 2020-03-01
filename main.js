@@ -102,8 +102,8 @@ function createGroundBody(widthGround, lengthGround, heightGround, angle) {
     let groundShape = new CANNON.Box(new CANNON.Vec3(widthGround/2, lengthGround/2, heightGround/2));
     groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
     groundBody.addShape(groundShape);
-    //let degree = -Math.PI / 2 ;
-    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 1, 0, 0), Math.PI/2 );  
+    let radianAngle = 0;
+    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 1, 0, 0), radianAngle );  
     groundBody.position.set(0, 0, 0);
 
     world.addBody(groundBody);
@@ -111,8 +111,8 @@ function createGroundBody(widthGround, lengthGround, heightGround, angle) {
 
 function createGround() {
     const widthGround = 100;
-    const lengthGround = 100;
-    const heightGround = 5;
+    const lengthGround = 5;
+    const heightGround = 100;
     const planeGeometry = new THREE.BoxBufferGeometry(widthGround, lengthGround, heightGround);
     const planeMaterial = new THREE.MeshStandardMaterial( {
         color: 0xffffff,
@@ -263,10 +263,15 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-    if (mouseLoc.x > 0.5 && mouseLoc.x < 0.9 && mouseLoc.y < 0 ) { 
+    if ( mouseLoc.x > 0.5 && mouseLoc.x < 0.9 ) { 
+    var axes = new THREE.Vector3(1, 0, 1).normalize();
     
-    console.log(groundBody.quaternion);
+    //get radian angle using inverse trigonometric function
+    radianAngle = - Math.asin(mouseLoc.y);
+    groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
     //groundBody.quaternion.y = mouseLoc.y;
+    console.log(groundBody.quaternion);
+    console.log(mouseLoc.y);
     }
 
     //world time progress
