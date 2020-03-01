@@ -102,8 +102,8 @@ function createGroundBody(widthGround, lengthGround, heightGround, angle) {
     let groundShape = new CANNON.Box(new CANNON.Vec3(widthGround/2, lengthGround/2, heightGround/2));
     groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
     groundBody.addShape(groundShape);
-    let degree = -Math.PI / 2 ;
-    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( angle, 0, 0), degree);  
+    //let degree = -Math.PI / 2 ;
+    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 1, 0, 0), Math.PI/2 );  
     groundBody.position.set(0, 0, 0);
 
     world.addBody(groundBody);
@@ -112,10 +112,12 @@ function createGroundBody(widthGround, lengthGround, heightGround, angle) {
 function createGround() {
     const widthGround = 100;
     const lengthGround = 100;
-    const heightGround = 20;
+    const heightGround = 5;
     const planeGeometry = new THREE.BoxBufferGeometry(widthGround, lengthGround, heightGround);
     const planeMaterial = new THREE.MeshStandardMaterial( {
         color: 0xffffff,
+        opacity: 0.5,
+        transparent: true,
         flatShading: true,
     });
     plane = new THREE.Mesh(planeGeometry, planeMaterial );
@@ -261,14 +263,15 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-    //if (Math.abs(mouseLoc.x) > 0.5 && Math.abs(mouseLoc.x) < 0.9 && Math.abs(mouseLoc.y) < 0.4 ) { 
-    groundBody.quaternion.x = mouseLoc.x;
-    groundBody.quaternion.y = mouseLoc.y;
-    //}
+    if (mouseLoc.x > 0.5 && mouseLoc.x < 0.9 && mouseLoc.y < 0 ) { 
+    
+    console.log(groundBody.quaternion);
+    //groundBody.quaternion.y = mouseLoc.y;
+    }
 
     //world time progress
     world.step(1 / 60);
-    // cannon.jsからthree.jsにオブジェクトの位置をコピー
+    // can,non.jsからthree.jsにオブジェクトの位置をコピー
     sphere.position.copy(sphereBody.position);
     sphere.quaternion.copy(sphereBody.quaternion);
 
