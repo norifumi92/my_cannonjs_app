@@ -15,6 +15,7 @@ let groundMaterial;
 let coverMaterial;
 let sphereMaterial;
 let phyWalls;
+const coverHeight = 10;
 
 //THREE.js sets
 let renderer;
@@ -28,6 +29,10 @@ let container;
 let walls;
 let plane;
 let cover;
+
+function convert_radian_to_degree(radians) {
+	return radians * 180 / Math.PI;
+}
 
 function init() {
 
@@ -118,7 +123,7 @@ function createGroundBody(widthGround, lengthGround, heightGround, angle) {
     groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3( 1, 0, 0), radianAngle );  
 
     groundBody.position.set(0, 0, 0);
-    coverBody.position.set( 0, 10, 0);
+    coverBody.position.set( 0, coverHeight, 0);
 
     world.addBody(groundBody);
     world.addBody(coverBody);
@@ -172,7 +177,7 @@ function createWalls() {
 function createSphereBody(radius) {
     const sphereInitialHeight = 5;
     const damping = 0.01;
-    const sphereMass = 3;
+    const sphereMass = 10;
     sphereMaterial = createMaterials().body;
 
     sphereBody = new CANNON.Body({
@@ -189,7 +194,7 @@ function createSphereBody(radius) {
 
 //Configure meshes
 function createMeshes() {
-    const radius = 2;
+    const radius = 4;
     //Create THREE sphere
     let sphereGeometry = new THREE.SphereGeometry(radius, widthSegments=20, heightSegments=20);
     let materials = createMaterials();
@@ -281,14 +286,18 @@ function createControls() {
 // avoid heavy computation here
 function update() {
     //if ( mouseLoc.x > 0.5 && mouseLoc.x < 0.9 ) { 
-    var axes = new THREE.Vector3(mouseLoc.x, 0, mouseLoc.y).normalize();
+    var axes = new THREE.Vector3(1, 0, 0).normalize();
     //get radian angle using inverse trigonometric function
     radianAngle = - Math.asin(mouseLoc.y);
+    
+    coverBody.position.z = coverHeight * Math.sin(radianAngle);
+    coverBody.position.y = coverHeight * Math.cos(radianAngle);
+    
     groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
     coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
     //groundBody.quaternion.y = mouseLoc.y;
-    console.log(groundBody.quaternion);
-    console.log(mouseLoc.y);
+    console.log(convert_radian_to_degree(radianAngle));
+    console.log(Math.sin(radianAngle));
     //}
 
     //world time progress
