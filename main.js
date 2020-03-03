@@ -2,6 +2,12 @@ const THREE = require('three');
 const CANNON = require('cannon');
 const OrbitControls = require('./resources/js/vendor/three/OrbitControls.js');
 const GLTFLoaders = require('./resources/js/vendor/three/GLTFLoader.js');
+
+//Fixed lengths
+const coverHeight = 10;
+const wallHeight = 10;
+const baseWidth = 200;
+
 //Axes
 let axes;
 let grid;
@@ -15,7 +21,6 @@ let groundMaterial;
 let coverMaterial;
 let sphereMaterial;
 let phyWalls;
-const coverHeight = 10;
 
 //THREE.js sets
 let renderer;
@@ -150,27 +155,21 @@ function createGround() {
 }
 
 function createWalls() {
-
     walls = new THREE.Group();
     const materials = createMaterials();
-    const wall_geometry = new THREE.BoxBufferGeometry( 20, 10, 3 );
+    const wall_geometry = new THREE.BoxBufferGeometry( baseWidth, wallHeight, 3 );
     const wall1 = new THREE.Mesh(wall_geometry, materials.body);
-    wall1.position.set( 0, 0, 8.5 );
-    
+    wall1.position.set( 0, wallHeight/2, 100 );
     const wall2 = wall1.clone();
-    wall2.position.set( 0, 0, -8.5 );
-
-    const wall3 = wall1.clone();
-    wall3.position.set( -10, 0, 0 );
-    wall3.rotation.y = Math.PI / 2;
-
+    wall2.position.set( 0, wallHeight/2, -100 );
+    
     walls.add(
         wall1,
         wall2,
-        wall3
+    //    wall3
     );
 
-    //scene.add(walls);
+    scene.add(walls);
 }
 
 //Create sphere body
@@ -257,7 +256,7 @@ function createGeometries() {
 // Configure camera
 function createCamera() {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    camera.position.set( -100, 100, 100 );
+    camera.position.set( -200, 130, 0 );
     camera.lookAt( 0, 0, 0 );
 }
 
@@ -285,19 +284,18 @@ function createControls() {
 // perform any updates to the scene, called once per frame
 // avoid heavy computation here
 function update() {
-    //if ( mouseLoc.x > 0.5 && mouseLoc.x < 0.9 ) { 
+     //if ( mouseLoc.x > 0.5 && mouseLoc.x < 0.9 ) { 
     var axes = new THREE.Vector3(1, 0, 0).normalize();
-    //get radian angle using inverse trigonometric function
+     //get radian angle using inverse trigonometric function
     radianAngle = - Math.asin(mouseLoc.y);
+
+    //coverBody.position.z = coverHeight * Math.sin(radianAngle);
+    //coverBody.position.y = coverHeight * Math.cos(radianAngle);
     
-    coverBody.position.z = coverHeight * Math.sin(radianAngle);
-    coverBody.position.y = coverHeight * Math.cos(radianAngle);
+    //groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
+    //coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
+    //console.log(convert_radian_to_degree(radianAngle));
     
-    groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
-    coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
-    //groundBody.quaternion.y = mouseLoc.y;
-    console.log(convert_radian_to_degree(radianAngle));
-    console.log(Math.sin(radianAngle));
     //}
 
     //world time progress
