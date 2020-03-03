@@ -35,8 +35,22 @@ let walls;
 let plane;
 let cover;
 
+//Common functions
 function convert_radian_to_degree(radians) {
 	return radians * 180 / Math.PI;
+}
+
+//Fetch coordinate after the rotation
+function fetch_coordinate_after_rotation(x, y, angle) {
+    const rotationMatrix = [
+        [Math.cos(angle), - Math.sin(angle)], 
+        [Math.sin(angle), Math.cos(angle)]
+    ]
+
+    rotatedX = x * rotationMatrix[0][0] + y * rotationMatrix[0][1];
+    rotatedY = x * rotationMatrix[1][0] + y * rotationMatrix[1][1];
+    
+    return [rotatedX, rotatedY];
 }
 
 function init() {
@@ -297,7 +311,7 @@ function update() {
     //console.log(convert_radian_to_degree(radianAngle));
     
     //}
-
+    console.log(fetch_coordinate_after_rotation(walls.children[0].position.z, walls.children[0].position.y, radianAngle));
     //world time progress
     world.step(1 / 60);
     // can,non.jsからthree.jsにオブジェクトの位置をコピー
