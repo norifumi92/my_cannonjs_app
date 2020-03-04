@@ -44,7 +44,7 @@ function convert_radian_to_degree(radians) {
 function fetch_coordinate_after_rotation(x, y, angle) {
     const rotationMatrix = [
         [Math.cos(angle), - Math.sin(angle)], 
-        [Math.sin(angle), Math.cos(angle)]
+        [Math.sin(angle),  Math.cos(angle)]
     ]
 
     rotatedX = x * rotationMatrix[0][0] + y * rotationMatrix[0][1];
@@ -303,15 +303,15 @@ function update() {
      //get radian angle using inverse trigonometric function
     radianAngle = - Math.asin(mouseLoc.y);
 
-    //coverBody.position.z = coverHeight * Math.sin(radianAngle);
-    //coverBody.position.y = coverHeight * Math.cos(radianAngle);
+    coverBody.position.z = coverHeight * Math.sin(radianAngle);
+    coverBody.position.y = coverHeight * Math.cos(radianAngle);
     
-    //groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
-    //coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
+    groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
+    coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
     //console.log(convert_radian_to_degree(radianAngle));
     
     //}
-    console.log(fetch_coordinate_after_rotation(walls.children[0].position.z, walls.children[0].position.y, radianAngle));
+
     //world time progress
     world.step(1 / 60);
     // can,non.jsからthree.jsにオブジェクトの位置をコピー
@@ -383,7 +383,12 @@ function onMouseMove( event ) {
 	// (-1 to +1) for both components
 
 	mouseLoc.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	mouseLoc.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    mouseLoc.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    radianAngle = - Math.asin(mouseLoc.y);
+
+    rotatedCoordinate = fetch_coordinate_after_rotation( baseWidth/2 , wallHeight/2 , - radianAngle);
+    walls.children[0].position.z = rotatedCoordinate[0];
+    walls.children[0].position.y = rotatedCoordinate[1];    
 }
 
 // call the init function to set everything up
