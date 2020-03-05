@@ -6,6 +6,7 @@ const GLTFLoaders = require('./resources/js/vendor/three/GLTFLoader.js');
 //Fixed lengths
 const coverHeight = 10;
 const wallHeight = 10;
+const wallLength = 3;
 const baseWidth = 200;
 
 //Axes
@@ -17,10 +18,11 @@ let world;
 let sphereBody;
 let groundBody;
 let coverBody;
+let wall1Body;
 let groundMaterial;
 let coverMaterial;
 let sphereMaterial;
-let phyWalls;
+let wallMaterial;
 
 //THREE.js sets
 let renderer;
@@ -105,6 +107,9 @@ function init() {
     var coverCollision = new CANNON.ContactMaterial(coverMaterial, sphereMaterial, { friction: 0.0, restitution: 0.5 });
     world.addContactMaterial(coverCollision);
 
+    var wallCollision = new CANNON.ContactMaterial(coverMaterial, wallMaterial, { friction: 0.0, restitution: 0.8 });
+    world.addContactMaterial(coverCollision);
+
     // start the animation loop
     renderer.setAnimationLoop( () => {
     update();
@@ -168,22 +173,38 @@ function createGround() {
     createGroundBody(widthGround, lengthGround, heightGround, 1);
 }
 
+function createWallsBody() {
+    wallMaterial = new CANNON.Material();
+    const wallShape = new CANNON.Box(new CANNON.Vec3(baseWidth/2, wallHeight/2, wallLength/2));
+    wallBody = new CANNON.Body({ mass: 0, material: wallMaterial });
+    wallBody.addShape(wallShape);
+    
+    wall1Body = wallBody;
+
+    let radianAngle = 0;
+    wall1Body.quaternion.setFromAxisAngle(new CANNON.Vec3( 1, 0, 0), radianAngle );  
+    wall1Body.position.set( 0, wallHeight/2, 100 );
+
+    world.addBody(wall1Body);
+}
+
 function createWalls() {
     walls = new THREE.Group();
     const materials = createMaterials();
-    const wall_geometry = new THREE.BoxBufferGeometry( baseWidth, wallHeight, 3 );
+    const wall_geometry = new THREE.BoxBufferGeometry( baseWidth, wallHeight, wallLength );
     const wall1 = new THREE.Mesh(wall_geometry, materials.body);
-    wall1.position.set( 0, wallHeight/2, 100 );
+    
     const wall2 = wall1.clone();
     wall2.position.set( 0, wallHeight/2, -100 );
     
     walls.add(
         wall1,
         wall2,
-    //    wall3
     );
 
     scene.add(walls);
+
+    createWallsBody();
 }
 
 //Create sphere body
@@ -308,6 +329,7 @@ function update() {
     
     groundBody.quaternion.setFromAxisAngle(axes, radianAngle);
     coverBody.quaternion.setFromAxisAngle(axes, radianAngle);
+    wall1Body.quaternion.setFromAxisAngle(axes, radianAngle);
     //console.log(convert_radian_to_degree(radianAngle));
     
     //}
@@ -322,6 +344,8 @@ function update() {
     plane.quaternion.copy(groundBody.quaternion);  
     cover.position.copy(coverBody.position);
     cover.quaternion.copy(coverBody.quaternion); 
+    walls.children[0].position.copy(wall1Body.position);
+    walls.children[0].quaternion.copy(wall1Body.quaternion);
     // increase the mesh's rotation each frame
     //train.rotation.z += 0.01;
     //train.rotation.x += 0.01;
@@ -387,8 +411,8 @@ function onMouseMove( event ) {
     radianAngle = - Math.asin(mouseLoc.y);
 
     rotatedCoordinate = fetch_coordinate_after_rotation( baseWidth/2 , wallHeight/2 , - radianAngle);
-    walls.children[0].position.z = rotatedCoordinate[0];
-    walls.children[0].position.y = rotatedCoordinate[1];    
+    wall1Body.position.z = rotatedCoordinate[0];
+    wall1Body.position.y = rotatedCoordinate[1];
 }
 
 // call the init function to set everything up
